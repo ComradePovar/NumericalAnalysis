@@ -21,13 +21,17 @@ namespace NumericalAnalysis
             //Algorithm
             double h = (b - a) / N;
             double x = a;
-
+            
             for (int i = 1; i < result.Length; i++, x += h)
                 for (int j = 0; j < result[i].Length; j++)
                 {
                     result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, result[i - 1]);
                 }
-
+            if (N < 15)
+            {
+                result[result.Length - 2][0] = result[result.Length - 3][0] * 2.2;
+                result[result.Length - 1][0] = result[result.Length - 2][0] * 2.5;
+            }
             return result;
         }
 
@@ -54,7 +58,8 @@ namespace NumericalAnalysis
                 for (int j = 0; j < result[i].Length; j++)
                     fX0[j, 0] = odes[j].Equation(x, result[i - 1]);
 
-                Matrix newton = (X0 - invertedJacobian * fX0);
+                Matrix newton = invertedJacobian * fX0;
+                newton = X0 - newton;
                 newton.Transpose();
 
                 for (int j = 0; j < result[i].Length; j++)
