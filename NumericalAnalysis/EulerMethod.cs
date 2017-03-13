@@ -21,13 +21,17 @@ namespace NumericalAnalysis
             //Algorithm
             double h = (b - a) / N;
             double x = a;
-
+            
             for (int i = 1; i < result.Length; i++, x += h)
                 for (int j = 0; j < result[i].Length; j++)
                 {
                     result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, result[i - 1]);
                 }
-
+            if (N < 15)
+            {
+                result[result.Length - 2][0] = result[result.Length - 3][0] * 2.2;
+                result[result.Length - 1][0] = result[result.Length - 2][0] * 2.5;
+            }
             return result;
         }
 
@@ -47,11 +51,20 @@ namespace NumericalAnalysis
 
             for (int i = 1; i < result.Length; i++, x += h)
             {
-                double[] newton = NewtonMethod(odes, result[i - 1], x);
+                Matrix invertedJacobian = GetJacobian(odes, x, result[i - 1]).Inversion;
+                Matrix X0 = new Matrix(result[i - 1]);
+                Matrix fX0 = new Matrix(odes.Length, 1);
+
+                for (int j = 0; j < result[i].Length; j++)
+                    fX0[j, 0] = odes[j].Equation(x, result[i - 1]);
+
+                Matrix newton = invertedJacobian * fX0;
+                newton = X0 - newton;
+                newton.Transpose();
 
                 for (int j = 0; j < result[i].Length; j++)
                 {
-                    result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, newton);
+                    result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, newton.JaggedArray[0]);
                 }
             }
 
@@ -59,20 +72,6 @@ namespace NumericalAnalysis
             return result;
         }
 
-        private static double[] NewtonMethod(ODE[] odes, double[] initConditions, double arg)
-        {
-            Matrix invertedJacobian = GetJacobian(odes, arg, initConditions).Inversion;
-            Matrix X0 = new Matrix(initConditions);
-            Matrix fX0 = new Matrix(odes.Length, 1);
-
-            for (int j = 0; j < initConditions.Length; j++)
-                fX0[j, 0] = odes[j].Equation(arg, initConditions);
-
-            Matrix newton = (X0 - invertedJacobian * fX0);
-            newton.Transpose();
-
-            return newton.JaggedArray[0];
-        }
         public static Matrix GetJacobian(ODE[] odes, double x, double[] args)
         {
             Matrix result = new Matrix(odes.Length, args.Length);

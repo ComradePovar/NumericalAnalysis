@@ -100,7 +100,7 @@ namespace NumericalAnalysis.WinForms
                 //        return 0;
                 //    }),
                 //new ODE(
-                //    delegate(double x, double[] y) 
+                //    delegate(double x, double[] y)
                 //    {
                 //        return (y[1] * (y[0] + 2 * y[1] - 1))/(x * (y[0] - 1));
                 //    }, 1, (double)1/4,
@@ -125,7 +125,7 @@ namespace NumericalAnalysis.WinForms
                 //    {
                 //        return Math.Pow(y[0], 2) / (2 * y[1]) - y[1]/2 + 1/(2 * y[1]);
                 //    }, 0, (double)-3/4,
-                //    delegate(double x, double[] y) 
+                //    delegate(double x, double[] y)
                 //    {
                 //        return 0;
                 //    },
@@ -138,7 +138,7 @@ namespace NumericalAnalysis.WinForms
                 //        return -Math.Pow(y[0], 2)/(2 * Math.Pow(y[1], 2)) - 0.5 - 1 / (2 * Math.Pow(y[1], 2));
                 //    }),
                 //new ODE(
-                //    delegate(double x, double[] y) 
+                //    delegate(double x, double[] y)
                 //    {
                 //        return y[1] + y[0];
                 //    }, 0, (double)5/4,
@@ -150,7 +150,7 @@ namespace NumericalAnalysis.WinForms
                 //    {
                 //        return 1;
                 //    },
-                //    delegate(double x, double[] y) 
+                //    delegate(double x, double[] y)
                 //    {
                 //        return 1;
                 //    })

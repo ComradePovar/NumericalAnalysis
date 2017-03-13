@@ -178,50 +178,63 @@ namespace NumericalAnalysis
         }
         private double getDeterminant()
         {
-            if (Dimension.rowCount == 1)
-                return _matrix[0, 0];
+            //if (Dimension.rowCount == 1)
+            //    return _matrix[0, 0];
 
-            double det = 0;
-            int sign = 1;
-            Matrix minor = this;
+            //double det = 0;
+            //int sign = 1;
+            //Matrix minor = this;
 
-            for (int i = 0; i < Dimension.rowCount; i++)
-            {
-                minor = minor.getMinor(i, 0);
-                det += sign * _matrix[i, 0] * minor.getDeterminant();
-                sign = -sign;
-            }
+            //for (int i = 0; i < Dimension.rowCount; i++)
+            //{
+            //    minor = minor.getMinor(i, 0);
+            //    det += sign * _matrix[i, 0] * minor.getDeterminant();
+            //    sign = -sign;
+            //}
 
-            return det;
+            //return det;
+            return this[0, 0] * this[1, 1] - this[0, 1] * this[1, 0];
+
         }
         public void Invert()
         {
-            if (!IsSquare)
-                throw new NotImplementedException("не квадратная");
             //Не работает, fixed with G.O.V.N.O.K.O.D.
-            double det = 0; //getDeterminant();
-            if (Dimension.rowCount == 1 && Dimension.columnCount == 1)
-                det = this[0, 0];
-            else
-                det = this[0, 0] * this[1, 1] - this[0, 1] * this[1, 0];
+            //if (!IsSquare)
+            //    throw new NotImplementedException("не квадратная");
 
-            if (det == 0)
-                throw new NotImplementedException("вырожденная");
+            //double det = 0; //getDeterminant();
+            //if (Dimension.rowCount == 1 && Dimension.columnCount == 1)
+            //    det = this[0, 0];
+            //else
+            //    det = this[0, 0] * this[1, 1] - this[0, 1] * this[1, 0];
 
-            Matrix inversionMatrix = new Matrix(Dimension);
+            //if (det == 0)
+            //    throw new NotImplementedException("вырожденная");
 
-            for (int i = 0; i < Dimension.rowCount; i++)
+            //Matrix inversionMatrix = new Matrix(Dimension);
+
+            //for (int i = 0; i < Dimension.rowCount; i++)
+            //{
+            //    for (int j = 0; j < Dimension.columnCount; j++)
+            //    {
+            //        inversionMatrix[i, j] = getMinor(i, j).getDeterminant();
+            //        if ((i + j) % 2 != 0)
+            //            inversionMatrix[i, j] = -inversionMatrix[i, j];
+            //    }
+            //}
+
+            //inversionMatrix.Transpose();
+            //_matrix = (1 / det * inversionMatrix)._matrix;
+            if (this.Dimension.rowCount == 2 && this.Dimension.columnCount == 2)
             {
-                for (int j = 0; j < Dimension.columnCount; j++)
-                {
-                    inversionMatrix[i, j] = getMinor(i, j).getDeterminant();
-                    if ((i + j) % 2 != 0)
-                        inversionMatrix[i, j] = -inversionMatrix[i, j];
-                }
+                double det = Determinant;
+                double t = this[0, 0];
+                this[0, 0] = this[1, 1] / det;
+                this[0, 1] = -this[0, 1] / det;
+                this[1, 0] = -this[1, 0] / det;
+                this[1, 1] = t / det;
             }
-
-            inversionMatrix.Transpose();
-            _matrix = (1 / det * inversionMatrix)._matrix;
+            
         }
         public void Transpose()
         {
