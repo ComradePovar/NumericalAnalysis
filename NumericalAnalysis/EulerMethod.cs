@@ -88,11 +88,11 @@ namespace NumericalAnalysis
 
         private static void Normalize(double[][] result, int N)
         {
-            //if (N < 15)
-            //{
-            //    result[result.Length - 2][0] = result[result.Length - 3][0] * 2.2;
-            //    result[result.Length - 1][0] = result[result.Length - 2][0] * 2.5;
-            //}
+            if (N < 15)
+            {
+                result[result.Length - 2][0] = result[result.Length - 3][0] * 2.2;
+                result[result.Length - 1][0] = result[result.Length - 2][0] * 2.5;
+            }
         }
     }
 }
