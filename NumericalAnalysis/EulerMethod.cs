@@ -27,14 +27,12 @@ namespace NumericalAnalysis
                 {
                     result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, result[i - 1]);
                 }
-            if (N < 15)
-            {
-                result[result.Length - 2][0] = result[result.Length - 3][0] * 2.2;
-                result[result.Length - 1][0] = result[result.Length - 2][0] * 2.5;
-            }
+
+            Normalize(result, N);
             return result;
         }
 
+        
         public static double[][] SolveImplicit(ODE[] odes, double a, double b, int N)
         {
             //Initilalization
@@ -61,14 +59,19 @@ namespace NumericalAnalysis
                 Matrix newton = invertedJacobian * fX0;
                 newton = X0 - newton;
                 newton.Transpose();
+                
 
                 for (int j = 0; j < result[i].Length; j++)
                 {
                     result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, newton.JaggedArray[0]);
                 }
-            }
 
-            //throw new NotImplementedException();
+                for (int j = 0; j < result[i].Length; j++)
+                {
+                    result[i][j] = result[i - 1][j] + h * odes[j].Equation(x, result[i]);
+                }
+            }
+            
             return result;
         }
 
@@ -78,9 +81,18 @@ namespace NumericalAnalysis
 
             for (int i = 0; i < result.Dimension.rowCount; i++)
                 for (int j = 0; j < result.Dimension.columnCount; j++)
-                    result[i, j] = odes[i].Deriatives[j + 1](x, args); //Значение х???
+                    result[i, j] = odes[i].Deriatives[j + 1](x, args); 
 
             return result;
+        }
+
+        private static void Normalize(double[][] result, int N)
+        {
+            //if (N < 15)
+            //{
+            //    result[result.Length - 2][0] = result[result.Length - 3][0] * 2.2;
+            //    result[result.Length - 1][0] = result[result.Length - 2][0] * 2.5;
+            //}
         }
     }
 }

@@ -1,29 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using OxyPlot;
 using OxyPlot.Series;
-using OxyPlot.Axes;
-using NumericalAnalysis;
 
 namespace NumericalAnalysis.WinForms
 {
     public partial class MainForm : Form
     {
-        private PlotModel model;
+        private PlotModel model1;
+        private PlotModel model2;
         private ODE[] odes;
         private double lowerBound;
         private double upperBound;
+        Func<double, double> firstFunction;
+        Func<double, double> secondFunction;
 
         public MainForm()
         {
             InitializeComponent();
+            firstFunction = x => Math.Pow(Math.E, Math.Pow(x, 2));
+            //firstFunction = x => x * x + 2;
+            secondFunction = x => 0.5 * Math.Pow(Math.E, -Math.Pow(x, 2));
             odes = new ODE[]
             {
                 // My task
@@ -86,24 +83,24 @@ namespace NumericalAnalysis.WinForms
                 //    delegate(double x, double[] y)
                 //    {
                 //        return y[1]/x;
-                //    }, 1, (double)1/2,
+                //    }, 1, 0.5,
                 //    delegate(double x, double[] y)
                 //    {
                 //        return -y[1]/Math.Pow(x, 2);
                 //    },
                 //    delegate(double x, double[] y)
                 //    {
-                //        return 1/x;
+                //        return 0;
                 //    },
                 //    delegate(double x, double[] y)
                 //    {
-                //        return 0;
+                //        return 1/x;
                 //    }),
                 //new ODE(
                 //    delegate(double x, double[] y)
                 //    {
                 //        return (y[1] * (y[0] + 2 * y[1] - 1))/(x * (y[0] - 1));
-                //    }, 1, (double)1/4,
+                //    }, 1, 0.25,
                 //    delegate(double x, double[] y)
                 //    {
                 //        return (-y[1] * (y[0] + 2 * y[1] - 1))/(Math.Pow(x, 2) * (y[0] - 1));
@@ -161,12 +158,16 @@ namespace NumericalAnalysis.WinForms
             //upperBound = 1;
             lowerBound = 1;
             upperBound = 2;
-            model = new PlotModel()
+            model1 = new PlotModel()
             {
                 LegendPlacement = LegendPlacement.Outside
             };
-
-            plot.Model = model;
+            model2 = new PlotModel()
+            {
+                LegendPlacement = LegendPlacement.Outside
+            };
+            plot1.Model = model1;
+            plot2.Model = model2;
         }
 
         private void btnDraw_Click(object sender, EventArgs e)
@@ -175,18 +176,22 @@ namespace NumericalAnalysis.WinForms
 
             double[][] resultExplicit = EulerMethod.SolveExplicit(odes, lowerBound, upperBound, N);
             double[][] resultImplicit = EulerMethod.SolveImplicit(odes, lowerBound, upperBound, N);
+            double x = lowerBound;
+            double h = (upperBound - lowerBound) / N;
+
             LineSeries firstExplicit = new LineSeries();
             LineSeries secondExplicit = new LineSeries();
             LineSeries firstImplicit = new LineSeries();
             LineSeries secondImplicit = new LineSeries();
+            FunctionSeries firstExact = new FunctionSeries(firstFunction, lowerBound, upperBound, h, "y = e^(x^2)");
+            FunctionSeries secondExact = new FunctionSeries(secondFunction, lowerBound, upperBound, h, "z = 1/2 * e^(-x^2)");
 
-            firstExplicit.Title = "Явное решение y'";
-            secondExplicit.Title = "Явное решение z'";
-            firstImplicit.Title = "Неявное решение y'";
-            secondImplicit.Title = "Неявное решение z'";
 
-            double x = lowerBound;
-            double h = (upperBound - lowerBound) / N;
+            firstExplicit.Title = "Явное решение y(нет)";
+            secondExplicit.Title = "Явное решение z(нет)";
+            firstImplicit.Title = "Неявное решение y(нет)";
+            secondImplicit.Title = "Неявное решение z(нет)";
+
             for (int i = 0; i < resultExplicit.Length; i++, x += h)
             {
                 for (int j = 0; j < resultExplicit[i].Length; j++)
@@ -200,12 +205,16 @@ namespace NumericalAnalysis.WinForms
             }
 
 
-            model.Series.Clear();
-            model.Series.Add(firstExplicit);
-            model.Series.Add(secondExplicit);
-            model.Series.Add(firstImplicit);
-            model.Series.Add(secondImplicit);
-            plot.InvalidatePlot(true);
+            model1.Series.Clear();
+            model2.Series.Clear();
+            model1.Series.Add(firstExplicit);
+            model2.Series.Add(secondExplicit);
+            model1.Series.Add(firstImplicit);
+            model2.Series.Add(secondImplicit);
+            model1.Series.Add(firstExact);
+            model2.Series.Add(secondExact);
+            plot1.InvalidatePlot(true);
+            plot2.InvalidatePlot(true);
         }
     }
 }
