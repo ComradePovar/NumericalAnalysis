@@ -19,7 +19,7 @@ namespace NumericalAnalysis.WinForms
         {
             InitializeComponent();
             firstFunction = x => Math.Pow(Math.E, Math.Pow(x, 2));
-            //firstFunction = x => x * x + 2;
+            Random rand = new Random();
             secondFunction = x => 0.5 * Math.Pow(Math.E, -Math.Pow(x, 2));
             odes = new ODE[]
             {
@@ -174,41 +174,37 @@ namespace NumericalAnalysis.WinForms
         {
             int N = int.Parse(tbN.Text);
 
-            double[][] resultExplicit = EulerMethod.SolveExplicit(odes, lowerBound, upperBound, N);
-            double[][] resultImplicit = EulerMethod.SolveImplicit(odes, lowerBound, upperBound, N);
-            double x = lowerBound;
-            double h = (upperBound - lowerBound) / N;
+            double[][] conditions = new double[3][];
+            for (int i = 0; i < 3; i++)
+            {
+                conditions[i] = new double[2];
+                conditions[i][0] = firstFunction(lowerBound + i * (upperBound - lowerBound) / N);
+                conditions[i][1] = secondFunction(lowerBound + i * (upperBound - lowerBound) / N);
+            }
+            
+            double[][] result = AdamsMoultonMethod.SolveImplicit4(odes, lowerBound, upperBound, N, conditions, firstFunction, secondFunction);
 
-            LineSeries firstExplicit = new LineSeries();
-            LineSeries secondExplicit = new LineSeries();
+            double x1 = lowerBound;
+            double h = (upperBound - lowerBound) / N;
+            
             LineSeries firstImplicit = new LineSeries();
             LineSeries secondImplicit = new LineSeries();
             FunctionSeries firstExact = new FunctionSeries(firstFunction, lowerBound, upperBound, h, "y = e^(x^2)");
             FunctionSeries secondExact = new FunctionSeries(secondFunction, lowerBound, upperBound, h, "z = 1/2 * e^(-x^2)");
-
-
-            firstExplicit.Title = "Явное решение y(нет)";
-            secondExplicit.Title = "Явное решение z(нет)";
-            firstImplicit.Title = "Неявное решение y(нет)";
-            secondImplicit.Title = "Неявное решение z(нет)";
-
-            for (int i = 0; i < resultExplicit.Length; i++, x += h)
-            {
-                for (int j = 0; j < resultExplicit[i].Length; j++)
+            
+            firstImplicit.Title = "Неявное решение y";
+            secondImplicit.Title = "Неявное решение z";
+            
+                for (int j = 0; j < result.Length; j++, x1 += h)
                 {
-                    firstExplicit.Points.Add(new DataPoint(x, resultExplicit[i][0]));
-                    secondExplicit.Points.Add(new DataPoint(x, resultExplicit[i][1]));
-
-                    firstImplicit.Points.Add(new DataPoint(x, resultImplicit[i][0]));
-                    secondImplicit.Points.Add(new DataPoint(x, resultImplicit[i][1]));
+                    firstImplicit.Points.Add(new DataPoint(x1, result[j][0]));
+                    secondImplicit.Points.Add(new DataPoint(x1, result[j][1]));
                 }
-            }
+            
 
 
             model1.Series.Clear();
             model2.Series.Clear();
-            model1.Series.Add(firstExplicit);
-            model2.Series.Add(secondExplicit);
             model1.Series.Add(firstImplicit);
             model2.Series.Add(secondImplicit);
             model1.Series.Add(firstExact);

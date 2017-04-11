@@ -105,7 +105,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.plot1);
             this.Name = "MainForm";
-            this.Text = "Forward and Backward Euler";
+            this.Text = "Implicit Addams forth order";
             this.ResumeLayout(false);
             this.PerformLayout();
 
