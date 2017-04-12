@@ -10,14 +10,51 @@ namespace NumericalAnalysis
 {
     public static class AdamsMoultonMethod
     {
-        public static double[][] SolveImplicit4(ODE[] odes, double a, double b, int N, double[][] conditions, Func<double, double> f1, Func<double, double> f2)
+        public static double[][] SolveImplicit3(ODE[] odes, double a, double b, int N, double[][] conditions, Func<double, double> f1, Func<double, double> f2)
+        {
+            double[][] result = new double[N + 1][];
+
+            for (int i = 0; i < result.Length; i++)
+                result[i] = new double[odes.Length];
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < odes.Length; j++)
+                    result[i][j] = conditions[i][j];
+            
+            double h = (b - a) / N;
+            double x = a + h;
+
+            for (int i = 4; i < result.Length; i++, x += h)
+            {
+                for (int j = 0; j < result[i].Length; j++)
+                {
+                    result[i][j] = result[i - 1][j] + h * (
+                        23.0/12 * odes[j].Equation(x, result[i - 1]) -
+                        4.0/3 * odes[j].Equation(x - h, result[i - 2]) +
+                        5.0/12 * odes[j].Equation(x - 2 * h, result[i - 3])
+                        );
+                }
+
+                for (int j = 0; j < result[i].Length; j++)
+                {
+                    result[i][j] = result[i - 1][j] + h * (
+                        5.0 / 12 * odes[j].Equation(x, result[i]) +
+                        2.0 / 3 * odes[j].Equation(x - h, result[i - 1]) -
+                        1.0 / 12 * odes[j].Equation(x - 2 * h, result[i - 2])
+                    );
+                }
+
+            }
+            return result;
+        }
+
+        public static double[][] SolveExplicit4(ODE[] odes, double a, double b, int N, double[][] conditions, Func<double, double> f1, Func<double, double> f2)
         {
             //Initilalization
             double[][] result = new double[N + 1][];
 
             for (int i = 0; i < result.Length; i++)
                 result[i] = new double[odes.Length];
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
                 for (int j = 0; j < odes.Length; j++)
                     result[i][j] = conditions[i][j];
 
@@ -25,32 +62,69 @@ namespace NumericalAnalysis
             double h = (b - a) / N;
             double x = a + h;
 
-            for (int i = 3; i < result.Length; i++, x += h)
+            for (int i = 4; i < result.Length; i++, x += h)
             {
-                Matrix invertedJacobian = GetJacobian(odes, x, result[i - 1]).Inversion;
-                Matrix X0 = new Matrix(result[i - 1]);
-                Matrix fX0 = new Matrix(odes.Length, 1);
-
-                for (int j = 0; j < result[i].Length; j++)
-                    fX0[j, 0] = odes[j].Equation(x, result[i - 1]);
-
-                Matrix newton = invertedJacobian * fX0;
-                newton = X0 - newton;
-                newton.Transpose();
-
-
                 for (int j = 0; j < result[i].Length; j++)
                 {
                     result[i][j] = result[i - 1][j] + h * (
-                        (double)3/8 * odes[j].Equation(x, newton.JaggedArray[0])+
-                        (double)19/24 * odes[j].Equation(x - h, result[i - 1])-
-                        (double)5/24 * odes[j].Equation(x - 2 * h, result[i - 2])+
-                        (double)1/24 * odes[j].Equation(x - 3 * h, result[i - 3])
+                        (double)3 / 8 * odes[j].Equation(x, result[i]) +
+                        (double)19 / 24 * odes[j].Equation(x - h, result[i - 1]) -
+                        (double)5 / 24 * odes[j].Equation(x - 2 * h, result[i - 2]) +
+                        (double)1 / 24 * odes[j].Equation(x - 3 * h, result[i - 3])
                     );
                 }
 
             }
 
+            return result;
+        }
+        public static double[][] SolveImplicit4(ODE[] odes, double a, double b, int N, double[][] conditions, Func<double, double> f1, Func<double, double> f2)
+        {
+            //Initilalization
+            double[][] result = new double[N + 1][];
+
+            for (int i = 0; i < result.Length; i++)
+                result[i] = new double[odes.Length];
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < odes.Length; j++)
+                    result[i][j] = conditions[i][j];
+
+            //Algorithm
+            double h = (b - a) / N;
+            double x = a + h;
+
+            for (int i = 4; i < result.Length; i++, x += h)
+            {
+                //Matrix invertedJacobian = GetJacobian(odes, x, result[i - 1]).Inversion;
+                //Matrix X0 = new Matrix(result[i - 1]);
+                //Matrix fX0 = new Matrix(odes.Length, 1);
+
+                //for (int j = 0; j < result[i].Length; j++)
+                //    fX0[j, 0] = odes[j].Equation(x, result[i - 1]);
+
+                //Matrix newton = invertedJacobian * fX0;
+                //newton = X0 - newton;
+                //newton.Transpose();
+                for (int j = 0; j < result[i].Length; j++)
+                {
+                    result[i][j] = result[i - 1][j] + h  * (
+                        55/24.0 * odes[j].Equation(x, result[i - 1]) -
+                        59/24.0 * odes[j].Equation(x - h, result[i - 2]) +
+                        37/24.0 * odes[j].Equation(x - 2 * h, result[i - 3]) -
+                        3.0/8 * odes[j].Equation(x - 3 * h, result[i - 4])
+                        );
+                }
+                for (int j = 0; j < result[i].Length; j++)
+                {
+                    result[i][j] = result[i - 1][j] + h * (
+                        (double)3 / 8 * odes[j].Equation(x, result[i]) +
+                        (double)19 / 24 * odes[j].Equation(x - h, result[i - 1]) -
+                        (double)5 / 24 * odes[j].Equation(x - 2 * h, result[i - 2]) +
+                        (double)1 / 24 * odes[j].Equation(x - 3 * h, result[i - 3])
+                    );
+                }
+
+            }
             Normalize(result, h, f1, f2);
             return result;
         }

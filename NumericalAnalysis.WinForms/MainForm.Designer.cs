@@ -105,7 +105,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.plot1);
             this.Name = "MainForm";
-            this.Text = "Implicit Addams forth order";
+            this.Text = "Implicit Adams";
             this.ResumeLayout(false);
             this.PerformLayout();
 

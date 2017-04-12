@@ -174,8 +174,8 @@ namespace NumericalAnalysis.WinForms
         {
             int N = int.Parse(tbN.Text);
 
-            double[][] conditions = new double[3][];
-            for (int i = 0; i < 3; i++)
+            double[][] conditions = new double[4][];
+            for (int i = 0; i < 4; i++)
             {
                 conditions[i] = new double[2];
                 conditions[i][0] = firstFunction(lowerBound + i * (upperBound - lowerBound) / N);
